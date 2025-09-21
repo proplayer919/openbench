@@ -1,0 +1,14 @@
+logs/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+env/
+venv/
+ENV/
+build/
+dist/
+*.egg-info/
+.vscode/
+.DS_Store
+/settings.json
