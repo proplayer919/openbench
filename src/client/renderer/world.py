@@ -3,8 +3,8 @@ import pygame
 from src.common.world.tile import Tile
 from src.common.world.chunk import Chunk
 from src.common.camera import Camera
-from src.client.textures.pack_manager import PackManager
-from src.client.textures.tile import TileTexture
+from src.client.asset.pack_manager import PackManager
+from src.client.asset.tile import TileTexture
 
 
 class WorldRenderer:

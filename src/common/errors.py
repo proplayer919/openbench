@@ -10,8 +10,8 @@ class InvalidChunkDataError(GameError):
     pass
 
 
-class InvalidTextureError(GameError):
-    """Exception raised for invalid tile texture."""
+class InvalidAssetError(GameError):
+    """Exception raised for invalid asset."""
 
     pass
 

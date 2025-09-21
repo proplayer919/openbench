@@ -7,7 +7,7 @@ from src.common.world.tile import Tile
 from src.common.world.chunk import Chunk
 from src.common.camera import Camera
 from src.common.logging import get_logger
-from src.client.textures.pack_manager import PackManager
+from src.client.asset.pack_manager import PackManager
 from src.client.renderer.world import WorldRenderer
 from src.client.settings.loader import load_settings
 
@@ -20,9 +20,7 @@ settings = load_settings()
 logger.info(f"Settings loaded: {settings}")
 
 # Default texture pack path
-pack_manager = PackManager(
-    "/media/proplayer919/Data Drive/Coding/Openbench/textures/default"
-)
+pack_manager = PackManager("assets/default")
 
 # Create a simple chunk
 chunks = []
@@ -71,6 +69,10 @@ clock = pygame.time.Clock()
 font = pygame.font.SysFont(None, 24)
 
 # Main loop
+
+# Preload click sound
+click_sound = pack_manager.load_sound("openbench.click")
+
 running = True
 while running:
     renderer.render_chunks(chunks, camera)
@@ -85,5 +87,8 @@ while running:
         if event.type == pygame.QUIT:
             logger.info("Quit event received, exiting...")
             running = False
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if click_sound:
+                click_sound.play()
 pygame.quit()
 sys.exit(0)
