@@ -73,6 +73,11 @@ font = pygame.font.SysFont(None, 24)
 # Preload click sound
 click_sound = pack_manager.load_sound("openbench.click")
 
+# Preload music sound and play it looping
+music_sound = pack_manager.load_sound("openbench.music")
+if music_sound:
+    music_sound.play(loops=-1)
+
 running = True
 while running:
     renderer.render_chunks(chunks, camera)
