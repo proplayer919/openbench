@@ -1,11 +1,11 @@
 from PIL import Image
 
-from src.client.asset.texture import Texture
-from src.common.logging import get_logger
-from src.common.errors import InvalidAssetError
+from src.asset.texture import Texture
+from src.logging import get_logger
+from src.errors import InvalidAssetError
 
 
-logger = get_logger("openbench_client")
+logger = get_logger()
 
 
 class TileTexture(Texture):

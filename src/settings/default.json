@@ -1,0 +1,25 @@
+{
+  "resolution": [
+    768,
+    768
+  ],
+  "fullscreen": false,
+  "keybinds": {
+    "up": [
+      "W",
+      "UP"
+    ],
+    "down": [
+      "S",
+      "DOWN"
+    ],
+    "left": [
+      "A",
+      "LEFT"
+    ],
+    "right": [
+      "D",
+      "RIGHT"
+    ]
+  }
+}

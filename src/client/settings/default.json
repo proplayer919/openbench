@@ -1,9 +1,0 @@
-{
-  "resolution": [
-    1920,
-    1080
-  ],
-  "zoom": 1.0,
-  "vsync": true,
-  "max_fps": 60
-}

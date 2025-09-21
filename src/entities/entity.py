@@ -1,7 +1,8 @@
-from src.common.errors import InvalidEntityDataError
-from src.common.logging import get_logger
-from src.common.atrribute import Attribute
-from src.common.entities.hitbox import Hitbox
+from src.errors import InvalidEntityDataError
+from src.logging import get_logger
+from src.atrribute import Attribute
+from src.entities.hitbox import Hitbox
+from src.entities.physics import Physics
 
 logger = get_logger("openbench_common")
 
@@ -12,7 +13,7 @@ class Entity:
         uuid: str,
         texture_id: str = "openbench.missing",
         hitbox: Hitbox | None = None,
-        position: tuple[int, int] = (0, 0),
+        position: tuple[float, float] = (0, 0),
         attributes: dict[str, Attribute] | None = None,
     ):
         if not uuid or not isinstance(uuid, str):
@@ -45,7 +46,7 @@ class Entity:
             )
             raise InvalidEntityDataError("Position must be a tuple of two integers.")
 
-        self.position: tuple[int, int] = position
+        self.position: tuple[float, float] = position
 
         for attr_id, attr in (attributes or {}).items():
             if not isinstance(attr, Attribute):
@@ -57,3 +58,10 @@ class Entity:
                 )
 
         self.attributes: dict[str, Attribute] = attributes or {}
+
+        # Physics properties
+        self.velocity = [0.0, 0.0]  # [vx, vy]
+        self.on_ground = False
+        self.physics: Physics | None = (
+            None  # To be set externally with Physics(self, world_tiles)
+        )

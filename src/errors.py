@@ -50,3 +50,9 @@ class InvalidHitboxDataError(GameError):
     """Exception raised for invalid hitbox data."""
 
     pass
+
+
+class MissingTextureError(GameError):
+    """Exception raised when a required texture is missing."""
+
+    pass

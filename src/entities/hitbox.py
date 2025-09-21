@@ -1,5 +1,5 @@
-from src.common.logging import get_logger
-from src.common.errors import InvalidHitboxDataError
+from src.logging import get_logger
+from src.errors import InvalidHitboxDataError
 
 logger = get_logger("openbench_common")
 

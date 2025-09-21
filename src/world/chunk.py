@@ -1,6 +1,6 @@
-from src.common.world.tile import Tile
-from src.common.errors import InvalidChunkDataError
-from src.common.logging import get_logger
+from src.world.tile import Tile
+from src.errors import InvalidChunkDataError
+from src.logging import get_logger
 
 logger = get_logger("openbench_common")
 

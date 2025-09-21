@@ -1,8 +1,8 @@
-from src.common.errors import InvalidPlayerDataError
-from src.common.logging import get_logger
-from src.common.entities.entity import Entity
-from src.common.entities.hitbox import Hitbox
-from src.common.atrribute import Attribute
+from src.errors import InvalidPlayerDataError
+from src.logging import get_logger
+from src.entities.entity import Entity
+from src.entities.hitbox import Hitbox
+from src.atrribute import Attribute
 
 logger = get_logger("openbench_common")
 
@@ -30,6 +30,3 @@ class Player(Entity):
         )
 
         self.username: str = username
-        self.player_mode: str = "default"  # Mode: "default", "editor", or "viewer"
-        self.allow_flight: bool = False
-        self.is_flying: bool = False

@@ -7,31 +7,10 @@ import logging.handlers
 LOG_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "logs")
 os.makedirs(LOG_DIR, exist_ok=True)
 
-LOG_FILE_CLIENT = os.path.join(
-    LOG_DIR, f'client_{datetime.now().strftime("%Y%m%d")}.log'
-)
-LOG_FILE_COMMON = os.path.join(
-    LOG_DIR, f'common_{datetime.now().strftime("%Y%m%d")}.log'
-)
-LOG_FILE_SERVER = os.path.join(
-    LOG_DIR, f'server_{datetime.now().strftime("%Y%m%d")}.log'
-)
+LOG_FILE = os.path.join(LOG_DIR, f'client_{datetime.now().strftime("%Y%m%d")}.log')
 
 
-def get_logger(
-    name: str = "openbench_client", level: int = logging.INFO
-) -> logging.Logger:
-    if name == "openbench_client":
-        LOG_FILE = LOG_FILE_CLIENT
-    elif name == "openbench_common":
-        LOG_FILE = LOG_FILE_COMMON
-    elif name == "openbench_server":
-        LOG_FILE = LOG_FILE_SERVER
-    else:
-        LOG_FILE = os.path.join(
-            LOG_DIR, f'{name}_{datetime.now().strftime("%Y%m%d")}.log'
-        )
-
+def get_logger(name: str = "openbench", level: int = logging.INFO) -> logging.Logger:
     logger = logging.getLogger(name)
     logger.setLevel(level)
     if not logger.handlers:

@@ -2,11 +2,11 @@ from pygame.surface import Surface
 import pygame
 from PIL import Image
 
-from src.common.logging import get_logger
-from src.common.errors import InvalidAssetError
+from src.logging import get_logger
+from src.errors import InvalidAssetError
 
 
-logger = get_logger("openbench_client")
+logger = get_logger()
 
 
 class Texture:

@@ -8,9 +8,9 @@ import pygame.mixer
 class AssetPack:
     def __init__(self, pack_dir):
         self.pack_dir = pack_dir
-        self._texture_cache = {}
-        self._surface_cache = {}
-        self._sound_cache = {}
+        self._texture_cache: dict[str, Image.Image] = {}
+        self._surface_cache: dict[str, Surface] = {}
+        self._sound_cache: dict[str, pygame.mixer.Sound] = {}
 
     def get_texture_path(self, texture_id):
         return os.path.join(self.pack_dir, "textures", f"{texture_id}.png")

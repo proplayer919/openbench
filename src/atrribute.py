@@ -1,5 +1,5 @@
-from src.common.errors import InvalidAttributeError
-from src.common.logging import get_logger
+from src.errors import InvalidAttributeError
+from src.logging import get_logger
 
 logger = get_logger("openbench_common")
 
