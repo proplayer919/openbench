@@ -76,6 +76,7 @@ click_sound = pack_manager.load_sound("openbench.click")
 # Preload music sound and play it looping
 music_sound = pack_manager.load_sound("openbench.music")
 if music_sound:
+    music_sound.set_volume(0.5)  # Set volume to 50%
     music_sound.play(loops=-1)
 
 running = True
