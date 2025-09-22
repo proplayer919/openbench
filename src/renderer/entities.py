@@ -1,4 +1,5 @@
 import pygame
+
 from src.entities.entity import Entity
 from src.entities.hitbox import Hitbox
 from src.camera import Camera

@@ -11,6 +11,10 @@ class WorldRenderer:
     def __init__(self, pack_manager: PackManager, surface: pygame.Surface):
         self.pack_manager = pack_manager
         self.surface = surface
+        # Cache for scaled pygame Surfaces keyed by (texture_id, quantized_zoom)
+        # This avoids recreating Surfaces and repeatedly calling pygame.transform.scale
+        # for every tile every frame.
+        self._scaled_surface_cache: dict[tuple[str, float], pygame.Surface] = {}
 
     def get_visible_tiles(self, chunks: list[Chunk], camera: Camera):
         cam_x, cam_y = camera.position
@@ -31,34 +35,46 @@ class WorldRenderer:
     def render_tile(self, tile: Tile, chunk_position: tuple[int, int], camera: Camera):
         tile_x = tile.x + (16 * chunk_position[0])
         tile_y = tile.y + (16 * chunk_position[1])
-
-        texture_img = self.pack_manager.load_texture(tile.type)
-        if texture_img is None:
+        # Use already-converted pygame Surface from the pack manager and a
+        # cached scaled version for the current zoom level so we don't
+        # repeatedly convert PIL Images or rescale the same texture every tile.
+        base_surface = self.pack_manager.load_texture_as_surface(tile.type)
+        if base_surface is None:
             return  # Missing texture
-        tile_texture = TileTexture(tile.type, texture_img)
 
-        # World to screen transformation
-        # Snap camera position to integer pixels to avoid subpixel rendering
+        # Helper to quantize zoom so cache keys remain stable across tiny float
+        # differences. 3 decimal places is enough for typical zoom values.
+        def _zoom_key(z: float) -> float:
+            return round(z, 3)
+
+        zoom = camera.zoom
+        zk = _zoom_key(zoom)
+        cache_key = (tile.type, zk)
+
+        if cache_key in self._scaled_surface_cache:
+            scaled_surface = self._scaled_surface_cache[cache_key]
+        else:
+            w, h = base_surface.get_width(), base_surface.get_height()
+            sw = max(1, int(w * zoom))
+            sh = max(1, int(h * zoom))
+            scaled_surface = pygame.transform.scale(base_surface, (sw, sh))
+            self._scaled_surface_cache[cache_key] = scaled_surface
+
+        # World to screen transformation (snap camera to avoid subpixel rendering)
         def round_1_16(val):
             return round(val * 16) / 16
 
         cam_px = round_1_16(camera.position[0])
         cam_py = round_1_16(camera.position[1])
-        zoom = camera.zoom
 
-        # Calculate screen position and size, force integer pixel alignment
         tile_x_rounded = round_1_16(tile_x)
         tile_y_rounded = round_1_16(tile_y)
-        screen_x = int(((tile_x_rounded * tile_texture.width) - cam_px) * zoom)
-        screen_y = int(((tile_y_rounded * tile_texture.height) - cam_py) * zoom)
-        tile_w = int(tile_texture.width * zoom)
-        tile_h = int(tile_texture.height * zoom)
+        screen_x = int(((tile_x_rounded * base_surface.get_width()) - cam_px) * zoom)
+        screen_y = int(((tile_y_rounded * base_surface.get_height()) - cam_py) * zoom)
 
-        # Always use scale for pixel art
-        scaled_surface = pygame.transform.scale(tile_texture.surface, (tile_w, tile_h))
-
-        # Inset by 1 pixel to avoid edge bleeding (optional, can be tuned)
-        rect = pygame.Rect(screen_x, screen_y, tile_w, tile_h)
+        rect = pygame.Rect(
+            screen_x, screen_y, scaled_surface.get_width(), scaled_surface.get_height()
+        )
         self.surface.blit(scaled_surface, rect)
 
     def render_chunk(self, chunk: Chunk, camera: Camera):
@@ -96,27 +112,46 @@ class WorldRenderer:
             hovered_screen_x, hovered_screen_y, int(16 * zoom), int(16 * zoom)
         )
 
+        # Iterate chunks and tiles, but use pre-converted pygame Surfaces and
+        # cached scaled surfaces to avoid repeated conversion/scale operations.
+        def _zoom_key(z: float) -> float:
+            return round(z, 3)
+
+        zk = _zoom_key(camera.zoom)
         for chunk in chunks:
             for tile in chunk.tiles:
                 tile_x = tile.x + (16 * chunk.position[0])
                 tile_y = tile.y + (16 * chunk.position[1])
-                texture_img = self.pack_manager.load_texture(tile.type)
-                if texture_img is None:
+
+                base_surface = self.pack_manager.load_texture_as_surface(tile.type)
+                if base_surface is None:
                     continue
-                tile_texture = TileTexture(tile.type, texture_img)
+
+                cache_key = (tile.type, zk)
+                if cache_key in self._scaled_surface_cache:
+                    scaled_surface = self._scaled_surface_cache[cache_key]
+                else:
+                    w, h = base_surface.get_width(), base_surface.get_height()
+                    sw = max(1, int(w * camera.zoom))
+                    sh = max(1, int(h * camera.zoom))
+                    scaled_surface = pygame.transform.scale(base_surface, (sw, sh))
+                    self._scaled_surface_cache[cache_key] = scaled_surface
+
                 screen_x = int(
-                    ((tile_x * tile_texture.width) - camera.position[0]) * camera.zoom
+                    ((tile_x * base_surface.get_width()) - camera.position[0])
+                    * camera.zoom
                 )
                 screen_y = int(
-                    ((tile_y * tile_texture.height) - camera.position[1]) * camera.zoom
+                    ((tile_y * base_surface.get_height()) - camera.position[1])
+                    * camera.zoom
                 )
-                tile_w = int(tile_texture.width * camera.zoom)
-                tile_h = int(tile_texture.height * camera.zoom)
-                rect = pygame.Rect(screen_x, screen_y, tile_w, tile_h)
-                self.surface.blit(
-                    pygame.transform.scale(tile_texture.surface, (tile_w, tile_h)),
-                    rect,
+                rect = pygame.Rect(
+                    screen_x,
+                    screen_y,
+                    scaled_surface.get_width(),
+                    scaled_surface.get_height(),
                 )
+                self.surface.blit(scaled_surface, rect)
 
         # Draw selector texture on top of hovered tile (even if empty)
         selector_img = self.pack_manager.load_texture("openbench.selector")
